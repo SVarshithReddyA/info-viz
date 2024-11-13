@@ -1,0 +1,86 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+
+# Sample dataset creation (for testing)
+np.random.seed(0)  # For reproducibility
+data = {
+    'School ID': np.random.choice(range(1, 11), size=120),  # 10 schools
+    'Month': np.tile(['September', 'October', 'November', 'December', 'January', 'February', 
+                      'March', 'April', 'May', 'June', 'July', 'August'], 10),
+    'Number of Students Absent': np.random.randint(1, 50, size=120)
+}
+df = pd.DataFrame(data)
+
+# Aggregate data by School ID and Month
+aggregated_data = df.groupby(['School ID', 'Month'], as_index=False).sum()
+
+# Define the desired order for schools and months
+school_order = list(range(1, 11))
+month_order = ['September', 'October', 'November', 'December', 'January', 
+               'February', 'March', 'April', 'May', 'June', 'July', 'August']
+
+# Pivot the data to create a matrix suitable for a heatmap
+heatmap_data = aggregated_data.pivot(index='School ID', columns='Month', values='Number of Students Absent').fillna(0)
+
+# Reorder the index and columns to match the specified order
+heatmap_data = heatmap_data.loc[school_order, month_order]
+
+# Set up the heatmap
+plt.figure(figsize=(12, 8))
+sns.heatmap(heatmap_data, annot=True, cmap='Blues', cbar_kws={'label': 'Number of Students Absent'})
+
+# Customize plot appearance
+plt.title("Heatmap of Student Absences Across Schools and Months")
+plt.xlabel("Month")
+plt.ylabel("School ID")
+plt.yticks(rotation=0)  # Keep School ID labels horizontal
+
+plt.show()
+
+# Answering the specific questions:
+# 1. Which school had the highest number of absences in March?
+highest_absences_march = heatmap_data['March'].idxmax()
+print(f"1. School {highest_absences_march} had the highest number of absences in March.")
+
+# 2. During which month did School 7 have the lowest number of absences?
+lowest_absences_school_7 = heatmap_data.loc[7].idxmin()
+print(f"2. School 7 had the lowest number of absences in {lowest_absences_school_7}.")
+
+# 3. In which school were absences the highest in December?
+highest_absences_december = heatmap_data['December'].idxmax()
+print(f"3. School {highest_absences_december} had the highest number of absences in December.")
+
+# 4. Which school showed a noticeable increase in absences between April and May?
+# Calculate the difference in absences between April and May
+increase_april_may = (heatmap_data['May'] - heatmap_data['April']).idxmax()
+print(f"4. School {increase_april_may} showed a noticeable increase in absences between April and May.")
+
+# 5. Which month had the highest total absences across all schools?
+highest_total_absences_month = heatmap_data.sum().idxmax()
+print(f"5. {highest_total_absences_month} had the highest total absences across all schools.")
+
+# 6. For School 3, in which month were absences at their peak?
+peak_month_school_3 = heatmap_data.loc[3].idxmax()
+print(f"6. For School 3, absences peaked in {peak_month_school_3}.")
+
+# 7. Did School 5 have more absences in January or in October?
+absences_jan_oct_school_5 = heatmap_data.loc[5, ['January', 'October']]
+more_absences_jan_oct_school_5 = 'January' if absences_jan_oct_school_5['January'] > absences_jan_oct_school_5['October'] else 'October'
+print(f"7. School 5 had more absences in {more_absences_jan_oct_school_5}.")
+
+# 8. Which school had the fewest absences in July?
+fewest_absences_july = heatmap_data['July'].idxmin()
+print(f"8. School {fewest_absences_july} had the fewest absences in July.")
+
+# 9. During which month did School 10 see the greatest decline in absences compared to the previous month?
+school_10_diff = heatmap_data.loc[10].diff().idxmin()
+print(f"9. School 10 saw the greatest decline in absences in {school_10_diff}.")
+
+# 10. Which school had consistently high absences from September to November?
+# Consistency check: Define "consistently high" as having absences above a threshold (e.g., mean of all absences)
+threshold = heatmap_data.loc[:, 'September':'November'].mean().mean()
+high_absences_schools = heatmap_data.loc[:, 'September':'November'] > threshold
+consistent_high_absences = high_absences_schools.all(axis=1).idxmax()
+print(f"10. School {consistent_high_absences} had consistently high absences from September to November.")
