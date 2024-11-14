@@ -5,6 +5,12 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import time
+import json
+from datetime import datetime
+
+app = Flask(__name__)
+app.secret_key = os.urandom(24)
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -116,18 +122,6 @@ def plot_scatter(df):
     plt.savefig(os.path.join('static', plot_filename))
     plt.close()
     return plot_filename
-
-import os, datetime
-import random
-from flask import Flask, render_template, request, redirect, url_for, session
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-app = Flask(__name__)
-app.secret_key = os.urandom(24)
-
 def print_session_info(question_number, answers):
     print("\n" + "="*50)
     print(f"Question Number: {question_number}")
@@ -136,21 +130,6 @@ def print_session_info(question_number, answers):
         q_id = q['id']
         print(f"{q['text']}: {answers[q_id]}")
     print("="*50 + "\n")
-
-import os, datetime
-import random
-from flask import Flask, render_template, request, redirect, url_for, session
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-import time
-import json
-from datetime import datetime
-
-app = Flask(__name__)
-app.secret_key = os.urandom(24)
-
 def create_log_file():
     """Create a new log file with unique session ID"""
     session_id = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -203,20 +182,6 @@ def log_question_response(question_data):
         
         with open(log_file, 'w') as f:
             json.dump(log_data, f, indent=4)
-
-import os, datetime
-import random
-from flask import Flask, render_template, request, redirect, url_for, session
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-import time
-import json
-from datetime import datetime
-
-app = Flask(__name__)
-app.secret_key = os.urandom(24)
 
 def create_log_file():
     """Create a new log file with unique session ID"""
@@ -302,7 +267,7 @@ def index():
     
     heatmap_filename = 'heatmap.png'
     plt.figure(figsize=(12, 8))
-    ax = sns.heatmap(heatmap_data, annot=True, cmap='Blues', cbar_kws={'label': 'Number of Students Absent'})
+    ax = sns.heatmap(heatmap_data, annot=False, cmap='Blues', cbar_kws={'label': 'Number of Students Absent'})
     plt.title("Heatmap of Student Absences Across Schools and Months")
     plt.xlabel("School ID")
     plt.ylabel("Month")
@@ -402,7 +367,7 @@ def next_question():
     
     if visualization_type == 'heatmap':
         plt.figure(figsize=(12, 8))
-        ax = sns.heatmap(heatmap_data, annot=True, cmap='Blues', cbar_kws={'label': 'Number of Students Absent'})
+        ax = sns.heatmap(heatmap_data, annot=False, cmap='Blues', cbar_kws={'label': 'Number of Students Absent'})
         plt.title("Heatmap of Student Absences Across Schools and Months")
         plt.xlabel("School ID")
         plt.ylabel("Month")
