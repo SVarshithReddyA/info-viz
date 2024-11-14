@@ -146,59 +146,6 @@ def create_log_file():
         'session_id': session_id,
         'start_time': datetime.now().isoformat(),
         'questions': [],
-        'heatmap_phase_time': None,
-        'scatter_phase_time': None,
-        'total_time': None,
-        'total_correct': 0,
-        'total_questions': len(QUESTIONS) * 2
-    }
-    
-    with open(log_file, 'w') as f:
-        json.dump(log_data, f, indent=4)
-    
-    return log_file
-
-def update_log(data):
-    """Update the log file with new data"""
-    log_file = session.get('log_file')
-    if log_file and os.path.exists(log_file):
-        with open(log_file, 'r') as f:
-            log_data = json.load(f)
-        
-        # Update log data with new information
-        log_data.update(data)
-        
-        with open(log_file, 'w') as f:
-            json.dump(log_data, f, indent=4)
-
-def log_question_response(question_data):
-    """Log individual question response"""
-    log_file = session.get('log_file')
-    if log_file and os.path.exists(log_file):
-        with open(log_file, 'r') as f:
-            log_data = json.load(f)
-        
-        log_data['questions'].append(question_data)
-        
-        with open(log_file, 'w') as f:
-            json.dump(log_data, f, indent=4)
-
-def create_log_file():
-    """Create a new log file with unique session ID"""
-    session_id = datetime.now().strftime('%Y%m%d_%H%M%S')
-    session['session_id'] = session_id
-    log_dir = 'session_logs'
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-    
-    log_file = os.path.join(log_dir, f'session_{session_id}.json')
-    session['log_file'] = log_file
-    
-    # Initialize log structure
-    log_data = {
-        'session_id': session_id,
-        'start_time': datetime.now().isoformat(),
-        'questions': [],
         'heatmap_total_time': 0,
         'scatter_total_time': 0,
         'total_time': None,
