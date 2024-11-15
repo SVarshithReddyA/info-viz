@@ -104,22 +104,43 @@ def generate_heatmap_and_answers():
     }
 
     return heatmap_data, answers
+# Example list of marker styles
+marker_styles = ['o', 's', '^', 'D', 'P', '*', 'X', 'v', '<', '>']
 
 def plot_scatter(df):
-    plt.figure(figsize=(14, 8))
-    for school_id in df['School ID'].unique():
-        school_data = df[df['School ID'] == school_id]
-        plt.scatter(school_data['Month'], school_data['Number of Students Absent'], label=f'School {school_id}', alpha=0.7)
+    plt.figure(figsize=(12, 8))
 
+    # Create a mapping of unique school IDs to marker styles
+    school_ids = df['School ID'].unique()
+    school_to_marker = {school_id: marker_styles[i % len(marker_styles)] for i, school_id in enumerate(school_ids)}
+
+    # Plot each school's data with its unique marker
+    for school_id in school_ids:
+        school_data = df[df['School ID'] == school_id]
+        plt.scatter(
+            school_data['Month'],
+            school_data['Number of Students Absent'],
+            label=f'School {school_id}',
+            alpha=0.7,
+            marker=school_to_marker[school_id],  # Unique marker for each school
+            s=100  # Adjust marker size as needed
+        )
+
+    # Adding title, labels, and other plot features
+    plt.grid(True)
     plt.title('Scatter Plot of Student Absences Across Schools and Months')
     plt.xlabel('Month')
     plt.ylabel('Number of Students Absent')
     plt.xticks(rotation=45)
     plt.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
+    
+    # Save the plot to a file
     plot_filename = 'scatterplot.png'
     plt.savefig(os.path.join('static', plot_filename))
     plt.close()
+    
     return plot_filename
+
 def print_session_info(question_number, answers):
     print("\n" + "="*50)
     print(f"Question Number: {question_number}")
