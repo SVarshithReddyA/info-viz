@@ -224,7 +224,13 @@ def update_time_metrics():
             ])
 
 @app.route('/')
-def index():
+def welcome():
+    # Clear any existing session data
+    session.clear()
+    return render_template('welcome.html')
+
+@app.route('/begin_questions')
+def begin_questions():
     session['current_question'] = 0
     session['score'] = 0
     session['completed_questions'] = 0
@@ -266,6 +272,7 @@ def index():
                          visualization_type='heatmap',
                          question_number=1,
                          total_questions=len(QUESTIONS) * 2)
+
 
 @app.route('/submit_answer', methods=['POST'])
 def submit_answer():
