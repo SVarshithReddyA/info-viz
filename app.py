@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import time
 import json
 from datetime import datetime
+import csv
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -130,81 +131,118 @@ def print_session_info(question_number, answers):
         q_id = q['id']
         print(f"{q['text']}: {answers[q_id]}")
     print("="*50 + "\n")
-def create_log_file():
-    """Create a new log file with unique session ID"""
+def create_csv_files():
+    """Create new CSV files with unique session ID"""
     session_id = datetime.now().strftime('%Y%m%d_%H%M%S')
     session['session_id'] = session_id
     log_dir = 'session_logs'
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
     
-    log_file = os.path.join(log_dir, f'session_{session_id}.json')
-    session['log_file'] = log_file
+    # Main responses CSV file
+    responses_file = os.path.join(log_dir, f'session_{session_id}_responses.csv')
+    session['responses_file'] = responses_file
     
-    # Initialize log structure
-    log_data = {
-        'session_id': session_id,
-        'start_time': datetime.now().isoformat(),
-        'questions': [],
-        'heatmap_total_time': 0,
-        'scatter_total_time': 0,
-        'total_time': None,
-        'total_correct': 0,
-        'total_questions': len(QUESTIONS) * 2,
-        'heatmap_correct': 0,
-        'scatter_correct': 0
-    }
+    response_headers = [
+        'question_number',
+        'visualization_type',
+        'question_text',
+        'user_answer',
+        'correct_answer',
+        'is_correct',
+        'response_time_seconds'
+    ]
     
-    with open(log_file, 'w') as f:
-        json.dump(log_data, f, indent=4)
+    with open(responses_file, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(response_headers)
     
-    return log_file
-
-def update_log(data):
-    """Update the log file with new data"""
-    log_file = session.get('log_file')
-    if log_file and os.path.exists(log_file):
-        with open(log_file, 'r') as f:
-            log_data = json.load(f)
-        
-        # Update log data with new information
-        log_data.update(data)
-        
-        with open(log_file, 'w') as f:
-            json.dump(log_data, f, indent=4)
+    # Time metrics CSV file
+    times_file = os.path.join(log_dir, f'session_{session_id}_times.csv')
+    session['times_file'] = times_file
+    
+    time_headers = [
+        'total_experiment_time',
+        'total_heatmap_time',
+        'total_scatter_time',
+        'average_heatmap_response_time',
+        'average_scatter_response_time'
+    ]
+    
+    with open(times_file, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(time_headers)
+    
+    return responses_file, times_file
 
 def log_question_response(question_data):
-    """Log individual question response"""
-    log_file = session.get('log_file')
-    if log_file and os.path.exists(log_file):
-        with open(log_file, 'r') as f:
-            log_data = json.load(f)
+    """Log individual question response to CSV"""
+    responses_file = session.get('responses_file')
+    if responses_file:
+        with open(responses_file, 'a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([
+                question_data['question_number'],
+                question_data['visualization_type'],
+                question_data['question_text'],
+                question_data['user_answer'],
+                question_data['correct_answer'],
+                question_data['is_correct'],
+                question_data['response_time_seconds']
+            ])
+
+def update_time_metrics():
+    """Update the time metrics CSV file"""
+    times_file = session.get('times_file')
+    if times_file:
+        total_time = round(time.time() - session.get('start_time', time.time()), 2)
+        total_heatmap_time = round(session.get('total_heatmap_time', 0), 2)
+        total_scatter_time = round(session.get('total_scatter_time', 0), 2)
         
-        log_data['questions'].append(question_data)
+        # Calculate average response times
+        heatmap_questions = session.get('heatmap_questions', 0)
+        scatter_questions = session.get('scatter_questions', 0)
         
-        # Update visualization-specific metrics
-        if question_data['is_correct']:
-            if question_data['visualization_type'] == 'heatmap':
-                log_data['heatmap_correct'] += 1
-            else:
-                log_data['scatter_correct'] += 1
+        avg_heatmap_time = round(total_heatmap_time / max(1, heatmap_questions), 2)
+        avg_scatter_time = round(total_scatter_time / max(1, scatter_questions), 2)
         
-        with open(log_file, 'w') as f:
-            json.dump(log_data, f, indent=4)
+        with open(times_file, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([
+                'total_experiment_time',
+                'total_heatmap_time',
+                'total_scatter_time',
+                'average_heatmap_response_time',
+                'average_scatter_response_time'
+            ])
+            writer.writerow([
+                total_time,
+                total_heatmap_time,
+                total_scatter_time,
+                avg_heatmap_time,
+                avg_scatter_time
+            ])
 
 @app.route('/')
 def index():
     session['current_question'] = 0
     session['score'] = 0
     session['completed_questions'] = 0
+    session['heatmap_questions'] = 0
+    session['scatter_questions'] = 0
     
-    # Create new log file for this session
-    create_log_file()
+    # Create new CSV files for this session
+    create_csv_files()
     
     # Record start time
+    session['start_time'] = time.time()
     session['question_start_time'] = time.time()
     session['total_heatmap_time'] = 0
     session['total_scatter_time'] = 0
+    
+    # Initialize visualization type counters
+    session['heatmap_questions'] = 0
+    session['scatter_questions'] = 0
     
     heatmap_data, answers = generate_heatmap_and_answers()
     session['answers'] = answers
@@ -243,8 +281,10 @@ def submit_answer():
     # Add response time to visualization-specific total
     if visualization_type == 'heatmap':
         session['total_heatmap_time'] = session.get('total_heatmap_time', 0) + response_time
+        session['heatmap_questions'] = session.get('heatmap_questions', 0) + 1
     else:
         session['total_scatter_time'] = session.get('total_scatter_time', 0) + response_time
+        session['scatter_questions'] = session.get('scatter_questions', 0) + 1
     
     current_question = QUESTIONS[current_question_idx]
     question_id = current_question['id']
@@ -276,12 +316,8 @@ def submit_answer():
     
     # Check if all questions are completed
     if session['completed_questions'] >= len(QUESTIONS) * 2:
-        # Update final log data
-        update_log({
-            'heatmap_total_time': round(session.get('total_heatmap_time', 0), 2),
-            'scatter_total_time': round(session.get('total_scatter_time', 0), 2),
-            'total_time': round(time.time() - session.get('question_start_time', time.time()), 2)
-        })
+        # Update final time metrics
+        update_time_metrics()
         return redirect(url_for('show_results'))
     
     # Toggle visualization type and update question index
@@ -294,9 +330,7 @@ def submit_answer():
     # Reset question start time
     session['question_start_time'] = time.time()
     
-    # Redirect to transition page instead of next_question
     return redirect(url_for('transition'))
-
 @app.route('/transition')
 def transition():
     return render_template('transition.html')
@@ -338,14 +372,6 @@ def next_question():
 def show_results():
     score = session.get('score', 0)
     total_questions = len(QUESTIONS) * 2
-    
-    # Final log update
-    update_log({
-        'end_time': datetime.now().isoformat(),
-        'final_score': score,
-        'final_score_percentage': round((score/total_questions * 100), 2)
-    })
-    
     return render_template('thank_you.html')
 
 if __name__ == '__main__':
