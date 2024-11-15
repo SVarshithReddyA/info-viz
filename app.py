@@ -13,9 +13,6 @@ import csv
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-app = Flask(__name__)
-app.secret_key = os.urandom(24)
-
 QUESTIONS = [
     {
         "id": "highest_absences_march",
