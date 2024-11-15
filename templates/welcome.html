@@ -1,0 +1,73 @@
+<!-- templates/welcome.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to the Visualization Study</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+      <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-bold text-center mb-8">
+          Welcome to the Data Visualization Study
+        </h1>
+
+        <div class="mb-8">
+          <p class="text-gray-700 mb-4">
+            Thank you for participating in our study on data visualization
+            effectiveness. This experiment will help us understand how different
+            visualization types affect data interpretation and decision-making.
+          </p>
+        </div>
+
+        <div class="space-y-6 text-gray-700 mb-8">
+          <div>
+            <h2 class="text-xl font-semibold mb-2">Instructions</h2>
+            <ol class="list-decimal list-inside space-y-2">
+              <li>
+                You will be shown two different types of visualizations
+                displaying student absence data:
+                <ul class="list-disc list-inside ml-6 mt-2">
+                  <li>A heatmap visualization</li>
+                  <li>A scatter plot visualization</li>
+                </ul>
+              </li>
+              <li>
+                For each visualization:
+                <ul class="list-disc list-inside ml-6 mt-2">
+                  <li>You will be asked questions about the data shown</li>
+                  <li>Select your answer from the provided options</li>
+                  <li>
+                    The visualization type will alternate between questions
+                  </li>
+                </ul>
+              </li>
+              <li>
+                Important notes:
+                <ul class="list-disc list-inside ml-6 mt-2">
+                  <li>Take your time to understand each visualization</li>
+                  <li>Answer as accurately as possible</li>
+                  <li>You cannot go back to previous questions</li>
+                </ul>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="flex justify-center">
+          <a
+            href="{{ url_for('begin_questions') }}"
+            class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+          >
+            Begin Study
+          </a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
