@@ -1,0 +1,21 @@
+question_number,visualization_type,question_text,user_answer,correct_answer,is_correct,response_time_seconds
+1,heatmap,Which school had the highest number of absences in March?,School 1,1,True,19.14
+2,scatter,Which school had the highest number of absences in March?,School 6,6,True,13.86
+3,heatmap,During which month did School 7 have the lowest number of absences?,February,September,False,26.79
+4,scatter,During which month did School 7 have the lowest number of absences?,March,September,False,20.53
+5,heatmap,In which school were absences the highest in December?,School 9,9,True,20.54
+6,scatter,In which school were absences the highest in December?,School 5,5,True,11.75
+7,heatmap,Which school showed a noticeable increase in absences between April and May?,School 5,5,True,28.63
+8,scatter,Which school showed a noticeable increase in absences between April and May?,School 8,8,True,39.64
+9,heatmap,Which month had the highest total absences across all schools?,April,August,False,32.32
+10,scatter,Which month had the highest total absences across all schools?,April,July,False,23.76
+11,heatmap,"For School 3, in which month were absences at their peak?",October,October,True,20.39
+12,scatter,"For School 3, in which month were absences at their peak?",October,October,True,22.83
+13,heatmap,Did School 5 have more absences in January or in October?,October,October,True,11.63
+14,scatter,Did School 5 have more absences in January or in October?,October,October,True,36.05
+15,heatmap,Which school had the fewest absences in July?,School 3,1,False,24.19
+16,scatter,Which school had the fewest absences in July?,School 10,3,False,39.37
+17,heatmap,During which month did School 10 see the greatest decline in absences compared to the previous month?,June,June,True,60.57
+18,scatter,During which month did School 10 see the greatest decline in absences compared to the previous month?,December,December,True,23.56
+19,heatmap,Which school had consistently high absences from September to November?,School 3,3,True,21.03
+20,scatter,Which school had consistently high absences from September to November?,School 2,5,False,27.93

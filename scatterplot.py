@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import cm
 
 # Sample dataset creation (for testing)
 data = {
@@ -22,10 +23,15 @@ aggregated_data = aggregated_data.sort_values('Month')
 # Set up plot
 plt.figure(figsize=(14, 8))
 
+# Use a color-blind-friendly palette
+colors = cm.get_cmap('Paired').colors
+num_schools = len(aggregated_data['School ID'].unique())
+color_map = {school_id: colors[i % len(colors)] for i, school_id in enumerate(aggregated_data['School ID'].unique())}
+
 # Scatter plot with Month on x-axis, Number of Students Absent on y-axis, and color for each School ID
 for school_id in aggregated_data['School ID'].unique():
     school_data = aggregated_data[aggregated_data['School ID'] == school_id]
-    plt.scatter(school_data['Month'], school_data['Number of Students Absent'], alpha=0.6, s=100, label=f"School {school_id}")
+    plt.scatter(school_data['Month'], school_data['Number of Students Absent'], alpha=0.8, s=100, label=f"School {school_id}", color=color_map[school_id])
 
 # Customize plot appearance
 plt.title("Monthly Student Absences due to Sickness Across Schools (Sep to Aug)")
